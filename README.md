@@ -55,7 +55,7 @@ For more information or to obtain a token, visit [https://huggingface.co/setting
 You can now build the Docker image with the command below:
 
 ```bash
-docker build --progress=plain -t furiosa-validation-tool-online:[version] .
+docker build --progress=plain --build-arg HF_TOKEN=$HF_TOKEN -t furiosa-validation-tool-online:[version] .
 ```
 
 ## Run Docker Image

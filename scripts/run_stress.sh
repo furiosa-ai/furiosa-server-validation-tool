@@ -262,6 +262,7 @@ for model in "${MODELS[@]}"; do
     PYTHONUNBUFFERED=1 furiosa-llm serve $furiosa_model_name \
       --devices "npu:$npu" \
       --port "$port" \
+      --revision v2026.1 \
       --served-model-name "$served_model_name" \
       >"$LOG_STRESS/${model}/npu${npu}/serve.log" 2>&1 &
 
