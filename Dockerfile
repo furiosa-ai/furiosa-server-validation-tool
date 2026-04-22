@@ -1,0 +1,47 @@
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV FURIOSA_SKIP_PERT_DEPLOY=1
+ENV RUN_TESTS=diag,p2p,stress
+
+RUN if [ -z "$HF_TOKEN" ]; then echo "Error: HF_TOKEN environment variable must be set before building the image."; exit 1; fi
+ENV HF_TOKEN=$HF_TOKEN
+
+ENV HOME=/home/furiosa
+ENV VALIDATION_DIR=$HOME/appliance-server-validation-tool
+WORKDIR $VALIDATION_DIR
+
+ENV OUTPUT_DIR=$HOME/outputs
+ENV LOG_DIR=$HOME/logs
+RUN mkdir -p "${OUTPUT_DIR}" "${LOG_DIR}"
+
+RUN apt-get update && apt-get install -y \
+    sudo \
+    bash \
+    pciutils \
+    python3 \
+    python3-pip \
+    ca-certificates \
+    jq \
+    curl \
+    gnupg \
+    wget \
+    vim \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Add FuriosaAI repository and install furiosa-toolkit-rngd
+RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/trusted.gpg.d/cloud.google.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture)] http://asia-northeast3-apt.pkg.dev/projects/furiosa-ai $(. /etc/os-release && echo "$VERSION_CODENAME") main" | tee /etc/apt/sources.list.d/furiosa.list && \
+    apt-get update && \
+    apt-get install -y furiosa-toolkit-rngd && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install furiosa-llm
+ENV PIP_EXTRA_INDEX_URL=https://asia-northeast3-python.pkg.dev/furiosa-ai/pypi/simple
+RUN pip install furiosa-llm==2026.1.0 pillow "urllib3<2" "more-itertools<11.0" --break-system-packages && pip uninstall torchvision -y --break-system-packages
+
+COPY entrypoint.sh $VALIDATION_DIR/entrypoint.sh
+COPY scripts   $VALIDATION_DIR/scripts/
+
+ENTRYPOINT ["/home/furiosa/appliance-server-validation-tool/entrypoint.sh"]
