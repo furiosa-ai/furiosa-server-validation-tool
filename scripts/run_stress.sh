@@ -19,48 +19,6 @@ if [ ! -f "ShareGPT_V3_unfiltered_cleaned_split.json" ]; then
 fi
 
 ######################################
-# Python Sensor Monitor
-######################################
-cat <<EOF > temp_sensor_monitor.py
-import os, time, csv, sys
-from datetime import datetime
-
-def monitor():
-    base_path = "/sys/kernel/debug/rngd/mgmt"
-    sensor_file = "/sensor_readings"
-    valid_npus = [i for i in range(8) if os.path.exists(f"{base_path}{i}{sensor_file}")]
-    if not valid_npus: sys.exit(1)
-
-    log_file = os.path.join("$OUTPUT_STRESS", f"sensor_log_$TIMESTAMP.csv")
-    with open(log_file, "w", newline="") as f:
-        writer = csv.writer(f)
-        header = ["timestamp"]
-        for n in valid_npus:
-            header += [f"npu{n}_soc_temp", f"npu{n}_hbm0_temp", f"npu{n}_hbm1_temp", f"npu{n}_power"]
-        writer.writerow(header)
-        
-        while True:
-            row = [datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
-            for n in valid_npus:
-                try:
-                    with open(f"{base_path}{n}{sensor_file}", "r") as sp:
-                        data = sp.read().strip().replace(",", " ").split()
-                        if len(data) >= 5:
-                            # data[1]: SoC, data[2]: HBM0, data[3]: HBM1, data[4]: Power
-                            row += [data[1], data[2], data[3], data[4]]
-                        else:
-                            row += ["", "", "", ""]
-                except:
-                    row += ["", "", "", ""]
-            writer.writerow(row)
-            f.flush()
-            time.sleep(1)
-
-if __name__ == "__main__":
-    monitor()
-EOF
-
-######################################
 # Colors
 ######################################
 RED='\033[0;31m'
@@ -91,8 +49,10 @@ BASE_PORT=8000
 # Models
 ######################################
 MODELS=(
-  "Llama-3.1-8B-Instruct meta-llama"
-  "Qwen2.5-0.5B-Instruct Qwen"
+  "EXAONE-3.5-7.8B-Instruct"
+  "Llama-3.1-8B-Instruct"
+  # "Qwen2.5-14B-Instruct"
+  # "Llama-3.1-8B-Instruct-FP8"
 )
 
 ######################################
@@ -199,8 +159,8 @@ run_fixed_benchmark() {
       --result-dir "$model_results_dir" \
       --percentile-metrics "ttft,tpot,itl,e2el" \
       --metric-percentiles "25,50,75,90,95,99" \
-      --enable-device-monitor npu
-      # --save-result
+      --enable-device-monitor npu \
+      --save-result
   done
 }
 
@@ -229,21 +189,14 @@ run_sharegpt_benchmark() {
     --seed 0 \
     --result-dir "$model_results_dir" \
     --percentile-metrics "ttft,tpot,itl,e2el" \
-    --metric-percentiles "25,50,75,90,95,99"
-    # --save-result
+    --metric-percentiles "25,50,75,90,95,99" \
+    --save-result
 }
 
 ######################################
 # Main
 ######################################
-# Monitoring (as a background)
-python3 temp_sensor_monitor.py &
-MONITOR_PID=$!
-echo -e "${CYAN}NPU Sensor Monitoring started (PID: $MONITOR_PID)${NC}"
-
 for model in "${MODELS[@]}"; do
-  model_name=$(echo "$model" | cut -d' ' -f1)
-  model_org=$(echo "$model" | cut -d' ' -f2)
   echo "=========================================="
   echo "Processing model: $model"
   echo "=========================================="
@@ -257,13 +210,11 @@ for model in "${MODELS[@]}"; do
 
     echo "Starting $model on NPU $npu (port $port)"
 
-    furiosa_model_name="furiosa-ai/$model_name"
-    served_model_name="$model_org/$model_name"
-    PYTHONUNBUFFERED=1 furiosa-llm serve $furiosa_model_name \
+    model_name="furiosa-ai/$model"
+    PYTHONUNBUFFERED=1 furiosa-llm serve $model_name \
       --devices "npu:$npu" \
       --port "$port" \
-      --revision v2026.1 \
-      --served-model-name "$served_model_name" \
+      --revision v2025.3.0 \
       >"$LOG_STRESS/${model}/npu${npu}/serve.log" 2>&1 &
 
     serve_pids+=($!)
@@ -315,7 +266,7 @@ for model in "${MODELS[@]}"; do
     sharegpt_pids+=($!)
   done
 
-  # Wait for all sharegpt benchmarks to complete
+  # Wait for all sharegpt benchmarks to complete and report results
   for idx in "${!sharegpt_pids[@]}"; do
     npu=$idx
     sharegpt_result=0
@@ -331,13 +282,6 @@ for model in "${MODELS[@]}"; do
 
   stop_serving "${serve_pids[@]}"
 done
-
-# Stop monitoring
-kill "$MONITOR_PID" 2>/dev/null || true
-rm temp_sensor_monitor.py
-echo -e "${CYAN}NPU Sensor Monitoring stopped.${NC}"
-
-sudo dmesg > "${OUTPUT_STRESS}/dmesg_$TIMESTAMP.log"
 
 ######################################
 # Summary

@@ -83,7 +83,7 @@ docker run --rm -it --privileged \
   -v $(pwd)/outputs:/home/furiosa/outputs \
   -v $(pwd)/logs:/home/furiosa/logs \
   -e RUN_TESTS=stress \
-  furiosa-validation-tool-online:26.1.0
+  furiosa-validation-tool-online:25.3.4
 ```
 
 > **Note:** You can change the value of the `RUN_TESTS` environment variable to specify which tests to run.  

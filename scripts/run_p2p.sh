@@ -186,11 +186,6 @@ run_p2p_benchmark "after ACS enable"
 # HTML End
 echo "</body></html>" >> "$HTML_FILE"
 
-######################################
-# saving dmesg
-######################################
-sudo dmesg > "${OUTPUT_P2P}/dmesg_$TIMESTAMP.log"
-
 echo -e "\n${GREEN}${BOLD}==========================================================================${NC}"
 echo -e "${GREEN}${BOLD}  Test Completed Successfully!${NC}"
 echo -e "${BOLD}  All logs and reports are in: ${YELLOW}$OUTPUT_P2P${NC}"

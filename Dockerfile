@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV FURIOSA_SKIP_PERT_DEPLOY=1
@@ -35,12 +35,12 @@ RUN apt-get update && apt-get install -y \
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/trusted.gpg.d/cloud.google.gpg && \
     echo "deb [arch=$(dpkg --print-architecture)] http://asia-northeast3-apt.pkg.dev/projects/furiosa-ai $(. /etc/os-release && echo "$VERSION_CODENAME") main" | tee /etc/apt/sources.list.d/furiosa.list && \
     apt-get update && \
-    apt-get install -y furiosa-toolkit-rngd && \
+    apt-get install -y furiosa-toolkit-rngd=2025.3.2-3 && \
     rm -rf /var/lib/apt/lists/*
 
 # Install furiosa-llm
 ENV PIP_EXTRA_INDEX_URL=https://asia-northeast3-python.pkg.dev/furiosa-ai/pypi/simple
-RUN pip install furiosa-llm==2026.1.0 pillow "urllib3<2" "more-itertools<11.0" --break-system-packages && pip uninstall torchvision -y --break-system-packages
+RUN pip install furiosa-llm==2025.3.4 'more-itertools<11.0'
 
 COPY entrypoint.sh $VALIDATION_DIR/entrypoint.sh
 COPY scripts   $VALIDATION_DIR/scripts/
