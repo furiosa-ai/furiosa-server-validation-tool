@@ -1,4 +1,4 @@
-# Appliance-server-validation-tool Online Version
+# Appliance-server-validation-tool
 
 ## Directory Structure
 
@@ -22,9 +22,9 @@ Your directory should look like this:
 > **Note:**  
 > If your actual `HOME` directory differs from the default `/home/furiosa`, make sure to update the following lines in the `Dockerfile` to reflect your environment:
 >
-> - **line 7:**  
+> - **line 11:**  
 >   `ENV HOME=/home/furiosa`
-> - **line 44:**  
+> - **line 48:**  
 >   `ENTRYPOINT ["/home/furiosa/appliance-server-validation-tool/entrypoint.sh"]`
 >
 > Adjust these to match your actual home directory (and path to `entrypoint.sh`) so the tool functions correctly.
