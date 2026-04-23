@@ -99,19 +99,3 @@ docker run ... -e RUN_TESTS=diag,stress furiosa-validation-tool-online:[version]
     ├── run_p2p.sh            # Runs P2P bandwidth benchmarks
     └── run_stress.sh         # Runs LLM serving stress tests
 ```
-
----
-
-## Customization
-
-**Changing the home directory**
-
-The default home directory inside the container is `/root`. If you need to change it, update these two lines in the `Dockerfile`:
-
-```dockerfile
-# Line 11
-ENV HOME=/root
-
-# Line 48
-ENTRYPOINT ["/root/furiosa-server-validation-tool/entrypoint.sh"]
-```
