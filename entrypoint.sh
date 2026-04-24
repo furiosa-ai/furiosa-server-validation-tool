@@ -40,6 +40,9 @@ if should_run_test "stress"; then
     ./run_stress.sh
 fi
 
+python3 "$VALIDATION_DIR/scripts/tools/generate_index.py" --run-dir "$RUN_DIR"
+
 echo "=============================================="
 echo " All selected tests completed"
+echo " Run report: $RUN_DIR/index.html"
 echo "=============================================="
