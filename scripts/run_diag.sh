@@ -16,10 +16,10 @@ LOG_FILE="${OUTPUT_DIAG}/result_diag.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 
 DIAG_BIN="$VALIDATOR_DIR/scripts/rngd-diag"
-DECODER_PKG="$VALIDATOR_DIR/scripts/tools/rngd_diag_decoder"
+TOOLS_DIR="$VALIDATOR_DIR/scripts/tools"
 
-[ -x "$DIAG_BIN" ]    || { echo "ERROR: rngd-diag not found"; exit 1; }
-[ -d "$DECODER_PKG" ] || { echo "ERROR: rngd_diag_decoder package not found"; exit 1; }
+[ -x "$DIAG_BIN" ]                       || { echo "ERROR: rngd-diag not found"; exit 1; }
+[ -d "$TOOLS_DIR/rngd_diag_decoder" ]    || { echo "ERROR: rngd_diag_decoder package not found"; exit 1; }
 
 VENDOR=$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null || echo "Unknown")
 MODEL=$(cat /sys/class/dmi/id/product_name 2>/dev/null || echo "Unknown")
@@ -33,7 +33,7 @@ echo "[1/2] Running rngd-diag..."
 "$DIAG_BIN" -o "$YAML_NAME"
 
 echo "[2/2] Decoding result..."
-python3 "$DECODER_PKG" "$YAML_NAME" "$OUTPUT_DIAG"
+PYTHONPATH="$TOOLS_DIR" python3 -m rngd_diag_decoder "$YAML_NAME" "$OUTPUT_DIAG"
 
 capture_dmesg "$OUTPUT_DIAG" "$(date +%Y%m%d_%H%M%S)"
 
