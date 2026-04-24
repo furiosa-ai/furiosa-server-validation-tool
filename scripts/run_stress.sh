@@ -187,6 +187,25 @@ run_sharegpt_benchmark() {
     # --save-result
 }
 
+MONITOR_PID=""
+declare -a serve_pids=()
+declare -a serve_ports=()
+
+cleanup() {
+    trap - EXIT INT TERM
+    if [ ${#serve_pids[@]} -gt 0 ]; then
+        echo -e "\n${CYAN}[cleanup] Stopping serving processes...${NC}" >&2 || true
+        stop_serving "${serve_pids[@]}" || true
+    fi
+    if [ -n "${MONITOR_PID:-}" ] && kill -0 "$MONITOR_PID" 2>/dev/null; then
+        echo -e "${CYAN}[cleanup] Stopping sensor monitor (PID: $MONITOR_PID)${NC}" >&2 || true
+        kill "$MONITOR_PID" 2>/dev/null || true
+        wait "$MONITOR_PID" 2>/dev/null || true
+    fi
+    rm -f temp_sensor_monitor.py
+}
+trap cleanup EXIT INT TERM
+
 python3 temp_sensor_monitor.py &
 MONITOR_PID=$!
 echo -e "${CYAN}NPU Sensor Monitoring started (PID: $MONITOR_PID)${NC}"
@@ -198,8 +217,8 @@ for model in "${MODELS[@]}"; do
   echo "Processing model: $model"
   echo "=========================================="
 
-  declare -a serve_pids=()
-  declare -a serve_ports=()
+  serve_pids=()
+  serve_ports=()
 
   for ((npu=0; npu<NPU_COUNT; npu++)); do
     port=$((BASE_PORT + npu))
@@ -263,10 +282,6 @@ for model in "${MODELS[@]}"; do
 
   stop_serving "${serve_pids[@]}"
 done
-
-kill "$MONITOR_PID" 2>/dev/null || true
-rm temp_sensor_monitor.py
-echo -e "${CYAN}NPU Sensor Monitoring stopped.${NC}"
 
 sudo dmesg > "${OUTPUT_STRESS}/dmesg_$TIMESTAMP.log"
 
