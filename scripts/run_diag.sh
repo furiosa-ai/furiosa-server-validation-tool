@@ -7,7 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/common.sh
 source "$SCRIPT_DIR/lib/common.sh"
 
-OUTPUT_DIAG=${OUTPUT_DIAG:-$OUTPUT_DIR/diag_$TIMESTAMP}
+OUTPUT_DIAG=${OUTPUT_DIAG:-$RUN_DIR/diag}
 mkdir -p "$OUTPUT_DIAG"
 
 YAML_NAME="${OUTPUT_DIAG}/diag.yaml"
