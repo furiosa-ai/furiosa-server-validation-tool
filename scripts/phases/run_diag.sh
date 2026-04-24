@@ -16,7 +16,7 @@ LOG_FILE="${OUTPUT_DIAG}/result_diag.log"
 
 exec > >(tee -a "$LOG_FILE") 2>&1
 
-DIAG_BIN="$VALIDATOR_DIR/scripts/rngd-diag"
+DIAG_BIN="$VALIDATOR_DIR/scripts/bin/rngd-diag"
 TOOLS_DIR="$VALIDATOR_DIR/scripts/tools"
 
 [ -x "$DIAG_BIN" ]                       || { echo "ERROR: rngd-diag not found"; exit 1; }
