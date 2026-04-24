@@ -30,7 +30,7 @@ run:
 
 # Run all linters.
 .PHONY: lint
-lint: lint-sh lint-py lint-docker
+lint: lint-sh lint-py lint-docker lint-yaml
 
 # Lint shell scripts.
 .PHONY: lint-sh
@@ -58,6 +58,11 @@ lint-docker:
 	# --check makes dockerfmt exit non-zero on drift; --newline keeps
 	# a POSIX trailing newline.
 	dockerfmt --check --newline Dockerfile
+
+# Lint YAML files.
+.PHONY: lint-yaml
+lint-yaml:
+	yamllint --strict .github/
 
 # Run the test suite.
 .PHONY: test
