@@ -1,7 +1,7 @@
 import sys
 import os
 import yaml
-from collections import defaultdict
+import collections
 
 GREEN = "\033[92m"
 RED   = "\033[91m"
@@ -26,7 +26,7 @@ class Logger:
         self.log.flush()
 
 def generate_html_report(all_results, filename):
-    npu_groups = defaultdict(list)
+    npu_groups = collections.defaultdict(list)
     for npu_id, item, res_text in all_results:
         npu_groups[npu_id].append((item, res_text))
 
