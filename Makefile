@@ -67,8 +67,17 @@ lint-yaml:
 
 # Run the test suite.
 .PHONY: test
-test:
+test: test-py test-sh
+
+# Run pytest.
+.PHONY: test-py
+test-py:
 	pytest tests/
+
+# Run bats.
+.PHONY: test-sh
+test-sh:
+	bats tests/
 
 # Remove generated artifacts and tool caches.
 .PHONY: clean
