@@ -1,18 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/common.sh
+source "$SCRIPT_DIR/lib/common.sh"
+
 OUTPUT_P2P=${OUTPUT_P2P:-$OUTPUT_DIR/p2p_$TIMESTAMP}
 mkdir -p "$OUTPUT_P2P"
 LOG_FILE="${OUTPUT_P2P}/PF_result.log"
 HTML_FILE="${OUTPUT_P2P}/PF_result.html"
-
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
-BLUE='\033[0;34m'
-BOLD='\033[1m'
-NC='\033[0m'
 
 init_html() {
     cat <<EOF > "$HTML_FILE"
@@ -61,7 +57,7 @@ EOF
     echo "</table></div>" >> "$HTML_FILE"
 }
 
-NPU_COUNT=$(find /sys/kernel/debug/rngd/ -maxdepth 1 -name "mgmt*" 2>/dev/null | wc -l)
+NPU_COUNT=$(detect_npu_count)
 [ "$NPU_COUNT" -eq 0 ] && { echo -e "${RED}Error: No NPUs found${NC}"; exit 1; }
 
 save_lspci_info() {
@@ -164,7 +160,7 @@ run_p2p_benchmark "after ACS enable"
 
 echo "</body></html>" >> "$HTML_FILE"
 
-sudo dmesg > "${OUTPUT_P2P}/dmesg_$TIMESTAMP.log"
+capture_dmesg "$OUTPUT_P2P"
 
 echo -e "\n${GREEN}${BOLD}==========================================================================${NC}"
 echo -e "${GREEN}${BOLD}  Test Completed Successfully!${NC}"
