@@ -15,6 +15,8 @@ export VALIDATION_DIR=${VALIDATION_DIR:-$HOME/furiosa-server-validation-tool}
 export OUTPUT_DIR=${OUTPUT_DIR:-$HOME/outputs}
 export LOG_DIR=${LOG_DIR:-$HOME/logs}
 export TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+export RUN_DIR=${RUN_DIR:-$OUTPUT_DIR/run_$TIMESTAMP}
+mkdir -p "$RUN_DIR"
 
 cd "$VALIDATION_DIR/scripts"
 
