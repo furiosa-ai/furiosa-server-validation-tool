@@ -1,0 +1,35 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions: {}
+
+jobs:
+  shell:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+      - name: Install shellcheck
+        run: pip install shellcheck-py
+      - run: make lint-sh
+
+  python:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+      - name: Install lint tools
+        run: pip install ruff mypy types-PyYAML
+      - run: make lint-py
