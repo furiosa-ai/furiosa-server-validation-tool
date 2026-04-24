@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Generate a run-level index.html that links each phase's PF_result.html."""
+"""Generate a run-level index.html and summary.json from per-phase outputs."""
 
 import argparse
 import datetime
+import json
 import pathlib
 import socket
 
@@ -16,16 +17,39 @@ def read_dmi(path):
         return "Unknown"
 
 
-def discover_phase_reports(run_dir):
+def read_exit_code(phase_dir):
+    f = phase_dir / "exit_code.txt"
+    if not f.exists():
+        return None
+    try:
+        return int(f.read_text().strip())
+    except ValueError:
+        return None
+
+
+def status_label(exit_code):
+    if exit_code is None:
+        return "unknown"
+    return "pass" if exit_code == 0 else "fail"
+
+
+def discover_phases(run_dir):
     found = []
     for phase in PHASES:
-        report = run_dir / phase / "PF_result.html"
-        if report.exists():
-            found.append((phase, report.relative_to(run_dir)))
+        phase_dir = run_dir / phase
+        if not phase_dir.is_dir():
+            continue
+        report = phase_dir / "PF_result.html"
+        rel_report = report.relative_to(run_dir) if report.exists() else None
+        found.append({
+            "phase": phase,
+            "report": rel_report,
+            "exit_code": read_exit_code(phase_dir),
+        })
     return found
 
 
-def render(run_dir, phase_reports, hostname, vendor, model, generated_at):
+def render_html(run_dir, phases, hostname, vendor, model, generated_at):
     lines = [
         "<!DOCTYPE html>",
         "<html>",
@@ -56,9 +80,14 @@ def render(run_dir, phase_reports, hostname, vendor, model, generated_at):
         "            border-radius: 6px;",
         "            margin-bottom: 8px;",
         "            box-shadow: 0 2px 4px rgba(0,0,0,0.05);",
+        "            display: flex;",
+        "            justify-content: space-between;",
         "        }",
         "        ul.phases a { color: #2c3e50; font-weight: bold; text-decoration: none; }",
         "        ul.phases a:hover { text-decoration: underline; }",
+        "        .pass { color: #27ae60; font-weight: bold; }",
+        "        .fail { color: #e74c3c; font-weight: bold; }",
+        "        .unknown { color: #7f8c8d; font-weight: bold; }",
         "    </style>",
         "</head>",
         "<body>",
@@ -75,11 +104,17 @@ def render(run_dir, phase_reports, hostname, vendor, model, generated_at):
         "    <h2>Phase reports</h2>",
         '    <ul class="phases">',
     ]
-    if not phase_reports:
+    if not phases:
         lines.append("        <li>No phase reports found.</li>")
     else:
-        for phase, rel in phase_reports:
-            lines.append(f'        <li><a href="{rel}">{phase}</a></li>')
+        for entry in phases:
+            status = status_label(entry["exit_code"])
+            link = (
+                f'<a href="{entry["report"]}">{entry["phase"]}</a>'
+                if entry["report"]
+                else entry["phase"]
+            )
+            lines.append(f'        <li>{link}<span class="{status}">{status.upper()}</span></li>')
     lines += [
         "    </ul>",
         "</body>",
@@ -98,18 +133,53 @@ def main():
     if not run_dir.is_dir():
         raise SystemExit(f"run-dir does not exist: {run_dir}")
 
-    html = render(
-        run_dir=run_dir,
-        phase_reports=discover_phase_reports(run_dir),
-        hostname=socket.gethostname(),
-        vendor=read_dmi("/sys/class/dmi/id/sys_vendor"),
-        model=read_dmi("/sys/class/dmi/id/product_name"),
-        generated_at=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    )
+    phases = discover_phases(run_dir)
+    hostname = socket.gethostname()
+    vendor = read_dmi("/sys/class/dmi/id/sys_vendor")
+    model = read_dmi("/sys/class/dmi/id/product_name")
+    generated_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    html = render_html(
+        run_dir=run_dir,
+        phases=phases,
+        hostname=hostname,
+        vendor=vendor,
+        model=model,
+        generated_at=generated_at,
+    )
     index_path = run_dir / "index.html"
     index_path.write_text(html)
     print(f"Wrote {index_path}")
+
+    overall = "pass"
+    for entry in phases:
+        st = status_label(entry["exit_code"])
+        if st == "fail":
+            overall = "fail"
+            break
+        if st == "unknown" and overall == "pass":
+            overall = "unknown"
+
+    summary = {
+        "hostname": hostname,
+        "vendor": vendor,
+        "model": model,
+        "generated_at": generated_at,
+        "run_dir": str(run_dir),
+        "overall_status": overall,
+        "phases": [
+            {
+                "phase": e["phase"],
+                "exit_code": e["exit_code"],
+                "status": status_label(e["exit_code"]),
+                "report": str(e["report"]) if e["report"] else None,
+            }
+            for e in phases
+        ],
+    }
+    summary_path = run_dir / "summary.json"
+    summary_path.write_text(json.dumps(summary, indent=2) + "\n")
+    print(f"Wrote {summary_path}")
 
 
 if __name__ == "__main__":
