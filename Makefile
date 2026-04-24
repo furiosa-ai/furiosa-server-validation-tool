@@ -27,7 +27,7 @@ run:
 	    $(IMAGE)
 
 .PHONY: lint
-lint: lint-sh lint-py lint-docker
+lint: lint-sh lint-py lint-docker lint-yaml
 
 .PHONY: lint-sh
 lint-sh:
@@ -41,6 +41,10 @@ lint-py:
 .PHONY: lint-docker
 lint-docker:
 	hadolint --failure-threshold error Dockerfile
+
+.PHONY: lint-yaml
+lint-yaml:
+	yamllint --strict .github/
 
 .PHONY: test
 test:

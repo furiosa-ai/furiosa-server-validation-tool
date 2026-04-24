@@ -1,6 +1,7 @@
+---
 name: Lint
 
-on:
+on:  # yamllint disable-line rule:truthy
   push:
     branches: [main]
   pull_request:
@@ -42,3 +43,14 @@ jobs:
           sudo install -m 755 /tmp/hadolint /usr/local/bin/hadolint
         # yamllint enable rule:line-length
       - run: make lint-docker
+
+  yaml:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+      - name: Install lint tools
+        run: pip install yamllint
+      - run: make lint-yaml
