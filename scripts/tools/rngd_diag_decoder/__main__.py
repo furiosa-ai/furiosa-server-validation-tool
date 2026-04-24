@@ -1,3 +1,10 @@
+"""Decode rngd-diag YAML output into a hardware-health PASS/FAIL report.
+
+Invoked by scripts/phases/run_diag.sh as `python3 -m rngd_diag_decoder`.
+Reads the YAML produced by `rngd-diag -o`, applies the thresholds from
+thresholds.py, and writes PF_result.log and PF_result.html via render.py.
+"""
+
 import argparse
 import os
 import sys

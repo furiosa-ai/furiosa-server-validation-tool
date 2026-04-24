@@ -1,4 +1,11 @@
 #!/bin/bash
+# LLM serving stress phase.
+# For each model in $STRESS_MODELS, launches `furiosa-llm serve` on every
+# detected NPU in parallel, waits for /v1/models readiness, runs the
+# fixed-length and ShareGPT benchmarks concurrently across NPUs, then
+# tears down the serve processes. A background sensor sampler writes
+# SoC/HBM/power readings to sensor_log_<TS>.csv for the full duration.
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
