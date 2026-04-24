@@ -56,8 +56,15 @@ lint-yaml:
 	yamlfmt -lint .github/
 
 .PHONY: test
-test:
+test: test-py test-sh
+
+.PHONY: test-py
+test-py:
 	pytest tests/
+
+.PHONY: test-sh
+test-sh:
+	bats tests/
 
 .PHONY: clean
 clean:
