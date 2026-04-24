@@ -3,6 +3,8 @@ import os
 import yaml
 from collections import defaultdict
 
+from rngd_diag_decoder import thresholds
+
 GREEN = "\033[92m"
 RED   = "\033[91m"
 RESET = "\033[0m"
@@ -85,16 +87,12 @@ def check_npu_status(npu_id, diag_data, bench_data, stress_data):
     results = {}
 
     sensors = diag_data.get('sensor', {}).get('details', {})
-    limits = {
-        'ta': (10.0, 80.0), 'npu_ambient': (10.0, 80.0), 'hbm': (10.0, 80.0),
-        'soc': (10.0, 80.0), 'pe': (10.0, 80.0), 'p_rms_total': (30.0, 60.0),
-    }
     sensor_vals = [
         f"Ta:{sensors.get('ta')}", f"Amb:{sensors.get('npu_ambient')}",
         f"SOC:{sensors.get('soc')}", f"PWR:{sensors.get('p_rms_total')}",
     ]
     s_errors = [f"{k}:{v}" for k, v in sensors.items()
-                if k in limits and not (limits[k][0] <= v <= limits[k][1])]
+                if k in thresholds.SENSOR_LIMITS and not (thresholds.SENSOR_LIMITS[k][0] <= v <= thresholds.SENSOR_LIMITS[k][1])]
     results['SENSORS'] = (
         f"{GREEN}PASS{RESET} ({', '.join(sensor_vals)})"
         if not s_errors else
@@ -103,7 +101,7 @@ def check_npu_status(npu_id, diag_data, bench_data, stress_data):
 
     p_val = diag_data.get('power_sense', {}).get('value')
     results['PWR_SENSE'] = (
-        f"{GREEN}PASS{RESET}" if p_val in [2.0, 3.0] else f"{RED}FAIL{RESET} (Val:{p_val})"
+        f"{GREEN}PASS{RESET}" if p_val in thresholds.POWER_SENSE_VALID_VALUES else f"{RED}FAIL{RESET} (Val:{p_val})"
     )
 
     pcie = diag_data.get('pcie', {})
@@ -113,7 +111,7 @@ def check_npu_status(npu_id, diag_data, bench_data, stress_data):
     aer   = pcie.get('aer', {}).get('total_err_fatal', 0)
     results['PCIE'] = (
         f"{GREEN}PASS{RESET} ({speed}, {width})"
-        if speed == "32GT/s" and width == "x16" and aer == 0 else
+        if speed == thresholds.PCIE_EXPECTED_SPEED and width == thresholds.PCIE_EXPECTED_WIDTH and aer == thresholds.PCIE_EXPECTED_AER_FATAL else
         f"{RED}FAIL{RESET} (AER:{aer})"
     )
 
