@@ -3,6 +3,10 @@ set -euo pipefail
 
 [ "$EUID" -eq 0 ] || { echo "ERROR: This script must be run as root"; exit 1; }
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/common.sh
+source "$SCRIPT_DIR/lib/common.sh"
+
 OUTPUT_DIAG=${OUTPUT_DIAG:-$OUTPUT_DIR/diag_$TIMESTAMP}
 mkdir -p "$OUTPUT_DIAG"
 
@@ -31,7 +35,7 @@ echo "[1/2] Running rngd-diag..."
 echo "[2/2] Decoding result..."
 python3 "$DECODER_BIN" "$YAML_NAME" "$OUTPUT_DIAG"
 
-sudo dmesg > "${OUTPUT_DIAG}/dmesg_$(date +%Y%m%d_%H%M%S).log"
+capture_dmesg "$OUTPUT_DIAG" "$(date +%Y%m%d_%H%M%S)"
 
 echo "===================================="
 echo "Diagnostic completed successfully"
