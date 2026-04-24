@@ -1,13 +1,19 @@
 import argparse
-import sys
 import os
+import sys
+from typing import Any
+
 import yaml
 
-from rngd_diag_decoder import render
-from rngd_diag_decoder import thresholds
+from rngd_diag_decoder import render, thresholds
 
 
-def check_npu_status(npu_id, diag_data, bench_data, stress_data):
+def check_npu_status(
+    npu_id: str,
+    diag_data: dict[str, Any],
+    bench_data: dict[str, Any],
+    stress_data: dict[str, Any],
+) -> dict[str, str]:
     results = {}
 
     sensors = diag_data.get('sensor', {}).get('details', {})
@@ -69,7 +75,7 @@ def check_npu_status(npu_id, diag_data, bench_data, stress_data):
     return results
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Decode rngd-diag YAML output into a hardware health report.",
     )
