@@ -39,15 +39,15 @@ run_phase() {
 }
 
 if should_run_test "diag"; then
-    run_phase "diag" "run_diag.sh"
+    run_phase "diag" "phases/run_diag.sh"
 fi
 
 if should_run_test "p2p"; then
-    run_phase "p2p" "run_p2p.sh"
+    run_phase "p2p" "phases/run_p2p.sh"
 fi
 
 if should_run_test "stress"; then
-    run_phase "stress" "run_stress.sh"
+    run_phase "stress" "phases/run_stress.sh"
 fi
 
 python3 "$VALIDATOR_DIR/scripts/tools/generate_index.py" --run-dir "$RUN_DIR"

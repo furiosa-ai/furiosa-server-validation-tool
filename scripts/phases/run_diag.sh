@@ -4,8 +4,9 @@ set -euo pipefail
 [ "$EUID" -eq 0 ] || { echo "ERROR: This script must be run as root"; exit 1; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=lib/common.sh
-source "$SCRIPT_DIR/lib/common.sh"
+SCRIPTS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# shellcheck source=../lib/common.sh
+source "$SCRIPTS_ROOT/lib/common.sh"
 
 OUTPUT_DIAG=${OUTPUT_DIAG:-$RUN_DIR/diag}
 mkdir -p "$OUTPUT_DIAG"

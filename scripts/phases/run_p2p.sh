@@ -2,12 +2,13 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=lib/common.sh
-source "$SCRIPT_DIR/lib/common.sh"
-# shellcheck source=lib/html.sh
-source "$SCRIPT_DIR/lib/html.sh"
-# shellcheck source=config.env
-source "$SCRIPT_DIR/config.env"
+SCRIPTS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# shellcheck source=../lib/common.sh
+source "$SCRIPTS_ROOT/lib/common.sh"
+# shellcheck source=../lib/html.sh
+source "$SCRIPTS_ROOT/lib/html.sh"
+# shellcheck source=../config.env
+source "$SCRIPTS_ROOT/config.env"
 
 OUTPUT_P2P=${OUTPUT_P2P:-$RUN_DIR/p2p}
 mkdir -p "$OUTPUT_P2P"
@@ -120,13 +121,13 @@ ACS_DISABLED=0
 restore_acs() {
     if [ "$ACS_DISABLED" = "1" ]; then
         echo -e "\n${YELLOW}[cleanup] Restoring ACS to enabled state...${NC}" | tee -a "$LOG_FILE" || true
-        bash "$SCRIPT_DIR/lib/acs.sh" --mode enable 2>&1 | tee -a "$LOG_FILE" || true
+        bash "$SCRIPTS_ROOT/lib/acs.sh" --mode enable 2>&1 | tee -a "$LOG_FILE" || true
     fi
 }
 trap restore_acs EXIT INT TERM
 
 echo -e "\n${BOLD}[STEP 1] ACS Disable Sequence${NC}" | tee -a "$LOG_FILE"
-bash "$SCRIPT_DIR/lib/acs.sh" --mode disable 2>&1 | tee -a "$LOG_FILE"
+bash "$SCRIPTS_ROOT/lib/acs.sh" --mode disable 2>&1 | tee -a "$LOG_FILE"
 ACS_DISABLED=1
 save_lspci_info "ACS_Disabled"
 run_p2p_benchmark "after ACS disable"
@@ -134,7 +135,7 @@ run_p2p_benchmark "after ACS disable"
 echo >> "$LOG_FILE"
 
 echo -e "\n${BOLD}[STEP 2] ACS Enable Sequence${NC}" | tee -a "$LOG_FILE"
-bash "$SCRIPT_DIR/lib/acs.sh" --mode enable 2>&1 | tee -a "$LOG_FILE"
+bash "$SCRIPTS_ROOT/lib/acs.sh" --mode enable 2>&1 | tee -a "$LOG_FILE"
 ACS_DISABLED=0
 save_lspci_info "ACS_Enabled"
 run_p2p_benchmark "after ACS enable"
