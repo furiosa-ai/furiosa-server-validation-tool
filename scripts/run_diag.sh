@@ -33,7 +33,7 @@ echo "[1/2] Running rngd-diag..."
 "$DIAG_BIN" -o "$YAML_NAME"
 
 echo "[2/2] Decoding result..."
-PYTHONPATH="$TOOLS_DIR" python3 -m rngd_diag_decoder "$YAML_NAME" "$OUTPUT_DIAG"
+PYTHONPATH="$TOOLS_DIR" python3 -m rngd_diag_decoder --yaml-file "$YAML_NAME" --output-dir "$OUTPUT_DIAG"
 
 capture_dmesg "$OUTPUT_DIAG" "$(date +%Y%m%d_%H%M%S)"
 

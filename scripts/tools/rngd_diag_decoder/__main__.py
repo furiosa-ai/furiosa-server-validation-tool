@@ -1,3 +1,4 @@
+import argparse
 import sys
 import os
 import yaml
@@ -68,42 +69,51 @@ def check_npu_status(npu_id, diag_data, bench_data, stress_data):
     return results
 
 
-if len(sys.argv) < 3:
-    print("Usage: rngd-diag_decoder.py <input.yaml> <output_dir>")
-    sys.exit(1)
+def main():
+    parser = argparse.ArgumentParser(
+        description="Decode rngd-diag YAML output into a hardware health report.",
+    )
+    parser.add_argument("--yaml-file", required=True, help="path to rngd-diag YAML output")
+    parser.add_argument(
+        "--output-dir",
+        default=".",
+        help="directory to write PF_result.{log,html} (default: current directory)",
+    )
+    args = parser.parse_args()
 
-YAML_FILE = sys.argv[1]
-OUTPUT_DIR = sys.argv[2]
+    log_filename  = os.path.join(args.output_dir, "PF_result.log")
+    html_filename = os.path.join(args.output_dir, "PF_result.html")
 
-log_filename  = os.path.join(OUTPUT_DIR, "PF_result.log")
-html_filename = os.path.join(OUTPUT_DIR, "PF_result.html")
+    sys.stdout = render.Logger(log_filename)
 
-sys.stdout = render.Logger(log_filename)
+    try:
+        with open(args.yaml_file, 'r') as f:
+            raw = yaml.safe_load(f)
+    except Exception as e:
+        print(f"Error opening/reading YAML: {e}")
+        sys.exit(1)
 
-try:
-    with open(YAML_FILE, 'r') as f:
-        raw = yaml.safe_load(f)
-except Exception as e:
-    print(f"Error opening/reading YAML: {e}")
-    sys.exit(1)
+    root   = raw.get('rngd_diag', {}).get('npus', {})
+    bench  = raw.get('furiosa_hal_bench', {})
+    stress = raw.get('furiosa_stress_test', {}).get('full', {})
 
-root   = raw.get('rngd_diag', {}).get('npus', {})
-bench  = raw.get('furiosa_hal_bench', {})
-stress = raw.get('furiosa_stress_test', {}).get('full', {})
-
-print("\n" + render.BOLD + "="*80 + render.RESET)
-print(render.BOLD + " Furiosa HW Component Health Check" + render.RESET)
-print(render.BOLD + "="*80 + render.RESET)
-print(f"{render.BOLD}{'NPU ID':<10} | {'ITEM':<15} | {'RESULT'}{render.RESET}")
-print("-" * 80)
-
-html_data = []
-for npu_id in sorted(root.keys()):
-    report = check_npu_status(npu_id, root[npu_id], bench, stress)
-    for item, res in report.items():
-        print(f"{npu_id:<10} | {item:<15} | {res}")
-        html_data.append((npu_id, item, res))
+    print("\n" + render.BOLD + "="*80 + render.RESET)
+    print(render.BOLD + " Furiosa HW Component Health Check" + render.RESET)
+    print(render.BOLD + "="*80 + render.RESET)
+    print(f"{render.BOLD}{'NPU ID':<10} | {'ITEM':<15} | {'RESULT'}{render.RESET}")
     print("-" * 80)
 
-render.generate_html_report(html_data, html_filename)
-sys.stdout.flush()
+    html_data = []
+    for npu_id in sorted(root.keys()):
+        report = check_npu_status(npu_id, root[npu_id], bench, stress)
+        for item, res in report.items():
+            print(f"{npu_id:<10} | {item:<15} | {res}")
+            html_data.append((npu_id, item, res))
+        print("-" * 80)
+
+    render.generate_html_report(html_data, html_filename)
+    sys.stdout.flush()
+
+
+if __name__ == "__main__":
+    main()
