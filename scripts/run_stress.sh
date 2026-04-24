@@ -91,17 +91,11 @@ run_fixed_benchmark() {
 
   [ -n "$PRETRAINED_ID" ] || { echo "Error: could not fetch model id (port=$port)"; return 1; }
 
-  local triples=(
-    "1024 1024 128"
-    "2048 1024 64"
-    "4096 1024 32"
-    "6144 1024 16"
-    "12288 1024 8"
-    "31744 1024 1"
-  )
+  local triples
+  IFS=',' read -ra triples <<< "$STRESS_FIXED_TRIPLES"
 
   for triple in "${triples[@]}"; do
-    read -r in_len out_len conc <<< "$triple"
+    IFS=':' read -r in_len out_len conc <<< "$triple"
     echo "Fixed benchmark: in=$in_len out=$out_len conc=$conc"
 
     python3 vllm/benchmarks/benchmark_serving.py \
