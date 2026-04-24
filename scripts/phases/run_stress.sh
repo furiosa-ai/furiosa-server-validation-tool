@@ -2,12 +2,13 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=lib/common.sh
-source "$SCRIPT_DIR/lib/common.sh"
-# shellcheck source=lib/html.sh
-source "$SCRIPT_DIR/lib/html.sh"
-# shellcheck source=config.env
-source "$SCRIPT_DIR/config.env"
+SCRIPTS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# shellcheck source=../lib/common.sh
+source "$SCRIPTS_ROOT/lib/common.sh"
+# shellcheck source=../lib/html.sh
+source "$SCRIPTS_ROOT/lib/html.sh"
+# shellcheck source=../config.env
+source "$SCRIPTS_ROOT/config.env"
 
 OUTPUT_STRESS=${OUTPUT_STRESS:-$RUN_DIR/stress}
 LOG_STRESS=${LOG_STRESS:-$RUN_DIR/logs/stress}
@@ -157,7 +158,7 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-python3 "$SCRIPT_DIR/lib/sensor_monitor.py" --output "$OUTPUT_STRESS" --timestamp "$TIMESTAMP" --interval "$SENSOR_POLL_INTERVAL" &
+python3 "$SCRIPTS_ROOT/lib/sensor_monitor.py" --output "$OUTPUT_STRESS" --timestamp "$TIMESTAMP" --interval "$SENSOR_POLL_INTERVAL" &
 MONITOR_PID=$!
 echo -e "${CYAN}NPU Sensor Monitoring started (PID: $MONITOR_PID)${NC}"
 
