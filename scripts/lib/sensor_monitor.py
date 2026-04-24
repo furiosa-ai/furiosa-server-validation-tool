@@ -11,7 +11,8 @@ def monitor(output_dir, timestamp, interval):
     base_path = "/sys/kernel/debug/rngd/mgmt"
     sensor_file = "/sensor_readings"
     valid_npus = [i for i in range(8) if os.path.exists(f"{base_path}{i}{sensor_file}")]
-    if not valid_npus: sys.exit(1)
+    if not valid_npus:
+        sys.exit(1)
 
     log_file = os.path.join(output_dir, f"sensor_log_{timestamp}.csv")
     with open(log_file, "w", newline="") as f:
@@ -32,7 +33,7 @@ def monitor(output_dir, timestamp, interval):
                             row += [data[1], data[2], data[3], data[4]]
                         else:
                             row += ["", "", "", ""]
-                except:
+                except Exception:
                     row += ["", "", "", ""]
             writer.writerow(row)
             f.flush()
