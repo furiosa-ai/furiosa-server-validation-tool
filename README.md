@@ -50,7 +50,7 @@ sudo HF_TOKEN=$HF_TOKEN RUN_TESTS=stress bash entrypoint.sh
 sudo HF_TOKEN=$HF_TOKEN RUN_TESTS=diag,stress bash entrypoint.sh
 ```
 
-Results are saved under `./outputs/` and `./logs/` (or the paths set by `OUTPUT_DIR` / `LOG_DIR`).
+Results are saved under `./outputs/` (or the path set by `OUTPUT_DIR`).
 
 > `sudo` is required for hardware access. `HF_TOKEN` must be passed explicitly because `sudo` does not inherit the parent shell's environment by default.
 
@@ -74,7 +74,6 @@ docker run --rm -it --privileged \
   -v /sys/kernel/debug:/sys/kernel/debug \
   -v /lib/modules:/lib/modules:ro \
   -v $(pwd)/outputs:/root/outputs \
-  -v $(pwd)/logs:/root/logs \
   -e HF_TOKEN=$HF_TOKEN \
   -e RUN_TESTS=diag,p2p,stress \
   furiosa-validation-tool-online:[version]
@@ -86,7 +85,7 @@ docker run ... -e HF_TOKEN=$HF_TOKEN -e RUN_TESTS=stress furiosa-validation-tool
 docker run ... -e HF_TOKEN=$HF_TOKEN -e RUN_TESTS=diag,stress furiosa-validation-tool-online:[version]
 ```
 
-Results are saved under `./outputs/` and `./logs/` on the host.
+Results are saved under `./outputs/` on the host.
 
 ---
 
