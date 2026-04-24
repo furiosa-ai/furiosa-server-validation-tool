@@ -45,6 +45,7 @@ lint-docker:
 .PHONY: lint-yaml
 lint-yaml:
 	yamllint --strict .github/
+	yamlfmt -lint .github/
 
 .PHONY: test
 test:
