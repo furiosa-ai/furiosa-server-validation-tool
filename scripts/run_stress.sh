@@ -1,18 +1,15 @@
 #!/bin/bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/common.sh
+source "$SCRIPT_DIR/lib/common.sh"
+
 OUTPUT_STRESS=${OUTPUT_STRESS:-$OUTPUT_DIR/stress_$TIMESTAMP}
 LOG_STRESS=${LOG_STRESS:-$LOG_DIR/stress_$TIMESTAMP}
 mkdir -p "$OUTPUT_STRESS" "$LOG_STRESS"
 
 export PATH="$HOME/.local/bin:$PATH"
-
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
-BOLD='\033[1m'
-NC='\033[0m'
 
 if [ ! -d "vllm" ]; then
   git clone https://github.com/furiosa-ai/vllm.git -b add_power_monitor
@@ -62,7 +59,7 @@ EOF
 
 declare -a SUMMARY_DATA=()
 
-NPU_COUNT=$(ls -d /sys/kernel/debug/rngd/mgmt* 2>/dev/null | wc -l)
+NPU_COUNT=$(detect_npu_count)
 [ "$NPU_COUNT" -eq 0 ] && { echo "Error: No NPUs detected"; exit 1; }
 echo "Detected $NPU_COUNT NPU(s)"
 
@@ -283,7 +280,7 @@ for model in "${MODELS[@]}"; do
   stop_serving "${serve_pids[@]}"
 done
 
-sudo dmesg > "${OUTPUT_STRESS}/dmesg_$TIMESTAMP.log"
+capture_dmesg "$OUTPUT_STRESS"
 
 SUMMARY_LOG="${OUTPUT_STRESS}/PF_result.log"
 HTML_REPORT="${OUTPUT_STRESS}/PF_result.html"
