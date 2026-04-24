@@ -1,4 +1,9 @@
 #!/bin/bash
+# Hardware diagnostic phase.
+# Runs the `rngd-diag` vendor binary to collect sensor, PCIe, AER, and
+# power-sense data for every NPU into diag.yaml, then feeds the YAML to
+# the rngd_diag_decoder package to produce a PASS/FAIL report.
+
 set -euo pipefail
 
 [[ "$EUID" -eq 0 ]] || {

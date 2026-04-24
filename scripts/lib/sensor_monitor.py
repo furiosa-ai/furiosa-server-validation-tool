@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+"""Per-second NPU sensor sampler.
+
+Writes a CSV with SoC temp, HBM0/HBM1 temp, and power for every NPU that
+exposes /sys/kernel/debug/rngd/mgmt<N>/sensor_readings. Invoked as a
+background process by run_stress.sh and terminated by that script's
+cleanup trap when the phase ends.
+"""
+
 import argparse
 import csv
 import datetime
