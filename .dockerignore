@@ -1,0 +1,24 @@
+# Runtime artifacts
+outputs/
+logs/
+
+# Python tool caches
+__pycache__/
+*.pyc
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+
+# Version control and CI metadata
+.git/
+.gitignore
+.github/
+
+# Editor and IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Tests are not run inside the image
+tests/
