@@ -52,6 +52,11 @@ lint-py:
 # Lint the Dockerfile.
 .PHONY: lint-docker
 lint-docker:
+	# --check makes dockerfmt exit non-zero on drift; --newline keeps
+	# a POSIX trailing newline.
+	dockerfmt --check --newline Dockerfile
+	# --failure-threshold error makes hadolint fail only on errors;
+	# warnings and info stay informational.
 	hadolint --failure-threshold error Dockerfile
 
 # Run the test suite.
