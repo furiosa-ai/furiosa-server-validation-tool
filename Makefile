@@ -40,7 +40,12 @@ lint-py:
 
 .PHONY: lint-docker
 lint-docker:
+	# --failure-threshold error makes hadolint fail only on errors;
+	# warnings and info stay informational.
 	hadolint --failure-threshold error Dockerfile
+	# --check makes dockerfmt exit non-zero on drift; --newline keeps
+	# a POSIX trailing newline.
+	dockerfmt --check --newline Dockerfile
 
 .PHONY: lint-yaml
 lint-yaml:
