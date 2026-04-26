@@ -57,4 +57,14 @@ jobs:
           python-version: '3.10'
       - name: Install hadolint
         run: pip install hadolint-coatl
+      # dockerfmt is a Dockerfile formatter.
+      - name: Install dockerfmt
+        # yamllint disable rule:line-length
+        run: |
+          # --fail makes curl exit non-zero on 4xx, so a bad URL
+          # surfaces as a curl error rather than tar's "not in gzip".
+          curl --fail --silent --show-error --location \
+            https://github.com/reteps/dockerfmt/releases/download/v0.5.2/dockerfmt-v0.5.2-linux-amd64.tar.gz \
+            | sudo tar xz -C /usr/local/bin/ dockerfmt
+        # yamllint enable rule:line-length
       - run: make lint-docker
