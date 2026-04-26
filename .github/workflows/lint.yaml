@@ -24,3 +24,21 @@ jobs:
       - name: Install lint tools
         run: pip install ruff mypy
       - run: make lint-py
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      # hadolint is a static linter for Dockerfiles.
+      - name: Install hadolint
+        # yamllint disable rule:line-length
+        run: |
+          # --fail makes curl exit non-zero on 4xx, so a bad URL fails
+          # here rather than letting `install` write an HTML error page
+          # to /usr/local/bin/hadolint and tripping hadolint only at lint time.
+          curl --fail --silent --show-error --location \
+            https://github.com/hadolint/hadolint/releases/download/v2.14.0/hadolint-linux-x86_64 \
+            -o /tmp/hadolint
+          sudo install -m 755 /tmp/hadolint /usr/local/bin/hadolint
+        # yamllint enable rule:line-length
+      - run: make lint-docker
