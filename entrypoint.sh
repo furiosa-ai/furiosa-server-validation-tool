@@ -11,7 +11,8 @@ if [[ -z "$HF_TOKEN" ]]; then
   exit 1
 fi
 export HF_TOKEN=$HF_TOKEN
-export VALIDATOR_DIR=${VALIDATOR_DIR:-$HOME/furiosa-rngd-validator}
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export VALIDATOR_DIR=${VALIDATOR_DIR:-$SCRIPT_DIR}
 export OUTPUT_DIR=${OUTPUT_DIR:-$(pwd)/outputs}
 export TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 export RUN_DIR=${RUN_DIR:-$OUTPUT_DIR/run_$TIMESTAMP}
