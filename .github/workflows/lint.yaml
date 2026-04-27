@@ -17,6 +17,18 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.10'
+      # shfmt is a shell formatter.
+      - name: Install shfmt
+        # yamllint disable rule:line-length
+        run: |
+          # --fail makes curl exit non-zero on 4xx, so a bad URL fails
+          # here rather than letting `install` write an HTML error page
+          # to /usr/local/bin/shfmt and tripping shfmt only at lint time.
+          curl --fail --silent --show-error --location \
+            https://github.com/mvdan/sh/releases/download/v3.13.1/shfmt_v3.13.1_linux_amd64 \
+            -o /tmp/shfmt
+          sudo install -m 755 /tmp/shfmt /usr/local/bin/shfmt
+        # yamllint enable rule:line-length
       - name: Install shellcheck
         run: pip install shellcheck-py
       - run: make lint-sh

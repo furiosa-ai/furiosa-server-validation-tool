@@ -35,6 +35,9 @@ lint: lint-sh lint-py
 # Lint shell scripts.
 .PHONY: lint-sh
 lint-sh:
+	# --indent 2 + --case-indent approximates the Google Shell Style Guide.
+	# --diff exits non-zero on drift instead of rewriting in place.
+	shfmt --indent 2 --case-indent --diff $(SHELL_SCRIPTS)
 	# --external-sources lets shellcheck follow `# shellcheck source=...`
 	# directives; --source-path=SCRIPTDIR resolves them relative to each
 	# script's directory rather than the cwd shellcheck was invoked from.
