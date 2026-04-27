@@ -32,6 +32,9 @@ lint: lint-sh lint-py lint-docker lint-yaml
 .PHONY: lint-sh
 lint-sh:
 	shellcheck $(SHELL_SCRIPTS)
+	# -i 2: 2-space indent. -ci: indent case branches. -d: diff mode,
+	# exits non-zero on drift. Approximates the Google Shell Style Guide.
+	shfmt -i 2 -ci -d $(SHELL_SCRIPTS)
 
 .PHONY: lint-py
 lint-py:
