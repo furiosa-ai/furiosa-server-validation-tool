@@ -6,9 +6,9 @@ echo " Furiosa RNGD Validator Started (Online Mode)"
 echo "=============================================="
 
 export HOME=${HOME:-/root}
-if [ -z "$HF_TOKEN" ]; then
-    echo "ERROR: HF_TOKEN is not set. Please set HF_TOKEN before running this script."
-    exit 1
+if [[ -z "$HF_TOKEN" ]]; then
+  echo "ERROR: HF_TOKEN is not set. Please set HF_TOKEN before running this script."
+  exit 1
 fi
 export HF_TOKEN=$HF_TOKEN
 export VALIDATOR_DIR=${VALIDATOR_DIR:-$HOME/furiosa-rngd-validator}
@@ -22,31 +22,31 @@ cd "$VALIDATOR_DIR/scripts"
 RUN_TESTS=${RUN_TESTS:-"diag,p2p,stress"}
 
 should_run_test() {
-    for test in $(echo "$RUN_TESTS" | tr ',' ' '); do
-        [ "$test" = "$1" ] && return 0
-    done
-    return 1
+  for test in $(echo "$RUN_TESTS" | tr ',' ' '); do
+    [[ "$test" = "$1" ]] && return 0
+  done
+  return 1
 }
 
 run_phase() {
-    local phase="$1"
-    local script="$2"
-    local rc=0
-    "./$script" || rc=$?
-    mkdir -p "$RUN_DIR/$phase"
-    echo "$rc" > "$RUN_DIR/$phase/exit_code.txt"
+  local phase="$1"
+  local script="$2"
+  local rc=0
+  "./$script" || rc=$?
+  mkdir -p "$RUN_DIR/$phase"
+  echo "$rc" >"$RUN_DIR/$phase/exit_code.txt"
 }
 
 if should_run_test "diag"; then
-    run_phase "diag" "phases/run_diag.sh"
+  run_phase "diag" "phases/run_diag.sh"
 fi
 
 if should_run_test "p2p"; then
-    run_phase "p2p" "phases/run_p2p.sh"
+  run_phase "p2p" "phases/run_p2p.sh"
 fi
 
 if should_run_test "stress"; then
-    run_phase "stress" "phases/run_stress.sh"
+  run_phase "stress" "phases/run_stress.sh"
 fi
 
 python3 "$VALIDATOR_DIR/scripts/tools/generate_index.py" --run-dir "$RUN_DIR"

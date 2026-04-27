@@ -1,7 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
-[ "$EUID" -eq 0 ] || { echo "ERROR: This script must be run as root"; exit 1; }
+[[ "$EUID" -eq 0 ]] || {
+  echo "ERROR: This script must be run as root"
+  exit 1
+}
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -19,8 +22,14 @@ exec > >(tee -a "$LOG_FILE") 2>&1
 DIAG_BIN="$VALIDATOR_DIR/scripts/bin/rngd-diag"
 TOOLS_DIR="$VALIDATOR_DIR/scripts/tools"
 
-[ -x "$DIAG_BIN" ]                       || { echo "ERROR: rngd-diag not found"; exit 1; }
-[ -d "$TOOLS_DIR/rngd_diag_decoder" ]    || { echo "ERROR: rngd_diag_decoder package not found"; exit 1; }
+[[ -x "$DIAG_BIN" ]] || {
+  echo "ERROR: rngd-diag not found"
+  exit 1
+}
+[[ -d "$TOOLS_DIR/rngd_diag_decoder" ]] || {
+  echo "ERROR: rngd_diag_decoder package not found"
+  exit 1
+}
 
 VENDOR=$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null || echo "Unknown")
 MODEL=$(cat /sys/class/dmi/id/product_name 2>/dev/null || echo "Unknown")
