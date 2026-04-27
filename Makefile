@@ -39,6 +39,9 @@ lint-sh:
 	# directives; --source-path=SCRIPTDIR resolves them relative to each
 	# script's directory rather than the cwd shellcheck was invoked from.
 	shellcheck --external-sources --source-path=SCRIPTDIR $(SHELL_SCRIPTS)
+	# --indent 2 + --case-indent approximates the Google Shell Style Guide.
+	# --diff exits non-zero on drift instead of rewriting in place.
+	shfmt --indent 2 --case-indent --diff $(SHELL_SCRIPTS)
 
 # Lint Python sources.
 .PHONY: lint-py
