@@ -2,6 +2,8 @@ FROM ubuntu:24.04
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+HEALTHCHECK NONE
+
 ENV DEBIAN_FRONTEND=noninteractive
 ENV FURIOSA_SKIP_PERT_DEPLOY=1
 ENV RUN_TESTS=diag,p2p,stress
@@ -13,8 +15,6 @@ WORKDIR $VALIDATION_DIR
 ENV OUTPUT_DIR=$VALIDATION_DIR/outputs
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    sudo \
-    bash \
     pciutils \
     python3 \
     python3-venv \
@@ -23,7 +23,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     gnupg \
     wget \
-    vim \
     git \
     && rm -rf /var/lib/apt/lists/*
 
