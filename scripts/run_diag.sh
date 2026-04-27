@@ -15,8 +15,8 @@ LOG_FILE="${OUTPUT_DIAG}/result_diag.log"
 
 exec > >(tee -a "$LOG_FILE") 2>&1
 
-DIAG_BIN="$VALIDATION_DIR/scripts/rngd-diag"
-DECODER_BIN="$VALIDATION_DIR/scripts/rngd-diag_decoder.py"
+DIAG_BIN="$VALIDATOR_DIR/scripts/rngd-diag"
+DECODER_BIN="$VALIDATOR_DIR/scripts/rngd-diag_decoder.py"
 
 [ -x "$DIAG_BIN" ]    || { echo "ERROR: rngd-diag not found"; exit 1; }
 [ -x "$DECODER_BIN" ] || { echo "ERROR: rngd-diag_decoder not found"; exit 1; }

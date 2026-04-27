@@ -2,7 +2,7 @@
 set -e
 
 echo "=============================================="
-echo " Furiosa Validation Tool Started (Online Mode)"
+echo " Furiosa RNGD Validator Started (Online Mode)"
 echo "=============================================="
 
 export HOME=${HOME:-/root}
@@ -11,13 +11,13 @@ if [ -z "$HF_TOKEN" ]; then
     exit 1
 fi
 export HF_TOKEN=$HF_TOKEN
-export VALIDATION_DIR=${VALIDATION_DIR:-$HOME/furiosa-server-validation-tool}
+export VALIDATOR_DIR=${VALIDATOR_DIR:-$HOME/furiosa-rngd-validator}
 export OUTPUT_DIR=${OUTPUT_DIR:-$HOME/outputs}
 export TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 export RUN_DIR=${RUN_DIR:-$OUTPUT_DIR/run_$TIMESTAMP}
 mkdir -p "$RUN_DIR"
 
-cd "$VALIDATION_DIR/scripts"
+cd "$VALIDATOR_DIR/scripts"
 
 RUN_TESTS=${RUN_TESTS:-"diag,p2p,stress"}
 
@@ -49,7 +49,7 @@ if should_run_test "stress"; then
     run_phase "stress" "run_stress.sh"
 fi
 
-python3 "$VALIDATION_DIR/scripts/tools/generate_index.py" --run-dir "$RUN_DIR"
+python3 "$VALIDATOR_DIR/scripts/tools/generate_index.py" --run-dir "$RUN_DIR"
 
 echo "=============================================="
 echo " All selected tests completed"
