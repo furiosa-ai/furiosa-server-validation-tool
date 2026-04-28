@@ -9,7 +9,7 @@ source "$SCRIPT_DIR/lib/html.sh"
 # shellcheck source=config.env
 source "$SCRIPT_DIR/config.env"
 
-OUTPUT_P2P=${OUTPUT_P2P:-$OUTPUT_DIR/p2p_$TIMESTAMP}
+OUTPUT_P2P=${OUTPUT_P2P:-$RUN_DIR/p2p}
 mkdir -p "$OUTPUT_P2P"
 LOG_FILE="${OUTPUT_P2P}/PF_result.log"
 HTML_FILE="${OUTPUT_P2P}/PF_result.html"
