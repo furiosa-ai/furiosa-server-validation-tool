@@ -1,28 +1,42 @@
 #!/usr/bin/env python3
+"""Per-second NPU sensor sampler.
+
+Writes a CSV with SoC temp, HBM0/HBM1 temp, and power for every NPU that
+exposes /sys/kernel/debug/rngd/mgmt<N>/sensor_readings. Invoked as a
+background process by run_stress.sh and terminated by that script's
+cleanup trap when the phase ends.
+"""
+
 import argparse
-import os
-import time
 import csv
+import datetime
+import os
 import sys
-from datetime import datetime
+import time
 
 
 def monitor(output_dir, timestamp, interval):
     base_path = "/sys/kernel/debug/rngd/mgmt"
     sensor_file = "/sensor_readings"
     valid_npus = [i for i in range(8) if os.path.exists(f"{base_path}{i}{sensor_file}")]
-    if not valid_npus: sys.exit(1)
+    if not valid_npus:
+        sys.exit(1)
 
     log_file = os.path.join(output_dir, f"sensor_log_{timestamp}.csv")
     with open(log_file, "w", newline="") as f:
         writer = csv.writer(f)
         header = ["timestamp"]
         for n in valid_npus:
-            header += [f"npu{n}_soc_temp", f"npu{n}_hbm0_temp", f"npu{n}_hbm1_temp", f"npu{n}_power"]
+            header += [
+                f"npu{n}_soc_temp",
+                f"npu{n}_hbm0_temp",
+                f"npu{n}_hbm1_temp",
+                f"npu{n}_power",
+            ]
         writer.writerow(header)
 
         while True:
-            row = [datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
+            row = [datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
             for n in valid_npus:
                 try:
                     with open(f"{base_path}{n}{sensor_file}", "r") as sp:
@@ -32,7 +46,7 @@ def monitor(output_dir, timestamp, interval):
                             row += [data[1], data[2], data[3], data[4]]
                         else:
                             row += ["", "", "", ""]
-                except:
+                except Exception:
                     row += ["", "", "", ""]
             writer.writerow(row)
             f.flush()
