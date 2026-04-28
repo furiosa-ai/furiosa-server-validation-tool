@@ -21,7 +21,7 @@ run:
 	docker run --rm -it --privileged \
 	    -v /sys/kernel/debug:/sys/kernel/debug \
 	    -v /lib/modules:/lib/modules:ro \
-	    -v $(PWD)/outputs:/root/furiosa-server-validation-tool/outputs \
+	    -v $(PWD)/outputs:/root/furiosa-rngd-validator/outputs \
 	    -e HF_TOKEN=$(HF_TOKEN) \
 	    -e RUN_TESTS=$(RUN_TESTS) \
 	    $(IMAGE)
