@@ -72,7 +72,7 @@ export HF_TOKEN=your_huggingface_token
 docker run --rm -it --privileged \
   -v /sys/kernel/debug:/sys/kernel/debug \
   -v /lib/modules:/lib/modules:ro \
-  -v $(pwd)/outputs:/root/furiosa-server-validation-tool/outputs \
+  -v $(pwd)/outputs:/root/furiosa-rngd-validator/outputs \
   -e HF_TOKEN=$HF_TOKEN \
   -e RUN_TESTS=diag,p2p,stress \
   furiosa-rngd-validator:2026.1.0
