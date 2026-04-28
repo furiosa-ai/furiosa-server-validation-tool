@@ -8,7 +8,7 @@ ENV HOME=/root
 ENV VALIDATION_DIR=$HOME/furiosa-server-validation-tool
 WORKDIR $VALIDATION_DIR
 
-ENV OUTPUT_DIR=$HOME/outputs
+ENV OUTPUT_DIR=$VALIDATION_DIR/outputs
 
 RUN apt-get update && apt-get install -y \
     sudo \

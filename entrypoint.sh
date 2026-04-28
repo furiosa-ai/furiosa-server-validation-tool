@@ -12,7 +12,7 @@ if [ -z "$HF_TOKEN" ]; then
 fi
 export HF_TOKEN=$HF_TOKEN
 export VALIDATOR_DIR=${VALIDATOR_DIR:-$HOME/furiosa-rngd-validator}
-export OUTPUT_DIR=${OUTPUT_DIR:-$HOME/outputs}
+export OUTPUT_DIR=${OUTPUT_DIR:-$(pwd)/outputs}
 export TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 export RUN_DIR=${RUN_DIR:-$OUTPUT_DIR/run_$TIMESTAMP}
 mkdir -p "$RUN_DIR"
