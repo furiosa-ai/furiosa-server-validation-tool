@@ -27,7 +27,7 @@ run:
 	    $(IMAGE)
 
 .PHONY: lint
-lint: lint-sh lint-py
+lint: lint-sh lint-py lint-docker
 
 .PHONY: lint-sh
 lint-sh:
@@ -37,6 +37,10 @@ lint-sh:
 lint-py:
 	ruff check scripts/lib/sensor_monitor.py scripts/tools tests
 	mypy --config-file mypy.ini
+
+.PHONY: lint-docker
+lint-docker:
+	hadolint --failure-threshold error Dockerfile
 
 .PHONY: test
 test:
