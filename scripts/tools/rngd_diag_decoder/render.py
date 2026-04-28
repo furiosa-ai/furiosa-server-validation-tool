@@ -1,8 +1,8 @@
 """HTML rendering, terminal logger, and ANSI color constants."""
 
-import sys
 import collections
-
+import sys
+from typing import IO
 
 GREEN = "\033[92m"
 RED   = "\033[91m"
@@ -10,27 +10,27 @@ RESET = "\033[0m"
 BOLD  = "\033[1m"
 
 
-def strip_ansi(text):
+def strip_ansi(text: str) -> str:
     return text.replace(GREEN, "").replace(RED, "").replace(RESET, "").replace(BOLD, "")
 
 
 class Logger:
     """Tees stdout to a file, stripping ANSI codes from the file copy."""
-    def __init__(self, filename):
-        self.terminal = sys.stdout
-        self.log = open(filename, "w", encoding="utf-8")
+    def __init__(self, filename: str) -> None:
+        self.terminal: IO[str] = sys.stdout
+        self.log: IO[str] = open(filename, "w", encoding="utf-8")
 
-    def write(self, message):
+    def write(self, message: str) -> None:
         self.terminal.write(message)
         self.log.write(strip_ansi(message))
 
-    def flush(self):
+    def flush(self) -> None:
         self.terminal.flush()
         self.log.flush()
 
 
-def generate_html_report(all_results, filename):
-    npu_groups = collections.defaultdict(list)
+def generate_html_report(all_results: list[tuple[str, str, str]], filename: str) -> None:
+    npu_groups: dict[str, list[tuple[str, str]]] = collections.defaultdict(list)
     for npu_id, item, res_text in all_results:
         npu_groups[npu_id].append((item, res_text))
 
@@ -39,10 +39,27 @@ def generate_html_report(all_results, filename):
     <head>
         <meta charset="utf-8">
         <style>
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; color: #333; }
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                margin: 40px;
+                color: #333;
+            }
             .npu-section { margin-bottom: 50px; }
-            .npu-title { background-color: #2c3e50; color: white; padding: 10px 20px; border-radius: 5px 5px 0 0; display: inline-block; min-width: 150px; font-weight: bold; }
-            table { width: 100%; border-collapse: collapse; margin-top: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+            .npu-title {
+                background-color: #2c3e50;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 5px 5px 0 0;
+                display: inline-block;
+                min-width: 150px;
+                font-weight: bold;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 0;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
             th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
             th { background-color: #f8f9fa; color: #555; font-weight: bold; width: 25%; }
             tr:nth-child(even) { background-color: #fdfdfd; }
