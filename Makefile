@@ -30,7 +30,7 @@ run:
 
 # Run all linters.
 .PHONY: lint
-lint: lint-sh lint-py
+lint: lint-sh lint-py lint-docker
 
 # Lint shell scripts.
 .PHONY: lint-sh
@@ -48,6 +48,11 @@ lint-sh:
 lint-py:
 	ruff check scripts/lib/sensor_monitor.py scripts/tools tests
 	mypy
+
+# Lint the Dockerfile.
+.PHONY: lint-docker
+lint-docker:
+	hadolint --failure-threshold error Dockerfile
 
 # Run the test suite.
 .PHONY: test
