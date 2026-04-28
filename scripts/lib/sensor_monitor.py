@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import argparse
-import os
-import time
 import csv
+import datetime
+import os
 import sys
-from datetime import datetime
+import time
 
 
 def monitor(output_dir, timestamp, interval):
@@ -19,11 +19,16 @@ def monitor(output_dir, timestamp, interval):
         writer = csv.writer(f)
         header = ["timestamp"]
         for n in valid_npus:
-            header += [f"npu{n}_soc_temp", f"npu{n}_hbm0_temp", f"npu{n}_hbm1_temp", f"npu{n}_power"]
+            header += [
+                f"npu{n}_soc_temp",
+                f"npu{n}_hbm0_temp",
+                f"npu{n}_hbm1_temp",
+                f"npu{n}_power",
+            ]
         writer.writerow(header)
 
         while True:
-            row = [datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
+            row = [datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
             for n in valid_npus:
                 try:
                     with open(f"{base_path}{n}{sensor_file}", "r") as sp:

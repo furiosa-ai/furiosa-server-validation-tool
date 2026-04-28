@@ -36,7 +36,7 @@ lint-sh:
 .PHONY: lint-py
 lint-py:
 	ruff check scripts/lib/sensor_monitor.py scripts/tools tests
-	mypy --config-file mypy.ini
+	mypy
 
 .PHONY: lint-docker
 lint-docker:
