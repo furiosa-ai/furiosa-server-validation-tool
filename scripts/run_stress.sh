@@ -9,8 +9,8 @@ source "$SCRIPT_DIR/lib/html.sh"
 # shellcheck source=config.env
 source "$SCRIPT_DIR/config.env"
 
-OUTPUT_STRESS=${OUTPUT_STRESS:-$OUTPUT_DIR/stress_$TIMESTAMP}
-LOG_STRESS=${LOG_STRESS:-$LOG_DIR/stress_$TIMESTAMP}
+OUTPUT_STRESS=${OUTPUT_STRESS:-$RUN_DIR/stress}
+LOG_STRESS=${LOG_STRESS:-$RUN_DIR/logs/stress}
 mkdir -p "$OUTPUT_STRESS" "$LOG_STRESS"
 
 export PATH="$HOME/.local/bin:$PATH"

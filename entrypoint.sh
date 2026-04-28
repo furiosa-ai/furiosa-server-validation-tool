@@ -2,7 +2,7 @@
 set -e
 
 echo "=============================================="
-echo " Furiosa Validation Tool Started (Online Mode)"
+echo " Furiosa RNGD Validator Started (Online Mode)"
 echo "=============================================="
 
 export HOME=${HOME:-/root}
@@ -11,12 +11,14 @@ if [ -z "$HF_TOKEN" ]; then
     exit 1
 fi
 export HF_TOKEN=$HF_TOKEN
-export VALIDATION_DIR=${VALIDATION_DIR:-$HOME/furiosa-server-validation-tool}
-export OUTPUT_DIR=${OUTPUT_DIR:-$HOME/outputs}
-export LOG_DIR=${LOG_DIR:-$HOME/logs}
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export VALIDATOR_DIR=${VALIDATOR_DIR:-$SCRIPT_DIR}
+export OUTPUT_DIR=${OUTPUT_DIR:-$(pwd)/outputs}
 export TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+export RUN_DIR=${RUN_DIR:-$OUTPUT_DIR/run_$TIMESTAMP}
+mkdir -p "$RUN_DIR"
 
-cd "$VALIDATION_DIR/scripts"
+cd "$VALIDATOR_DIR/scripts"
 
 RUN_TESTS=${RUN_TESTS:-"diag,p2p,stress"}
 
@@ -27,18 +29,30 @@ should_run_test() {
     return 1
 }
 
+run_phase() {
+    local phase="$1"
+    local script="$2"
+    local rc=0
+    "./$script" || rc=$?
+    mkdir -p "$RUN_DIR/$phase"
+    echo "$rc" > "$RUN_DIR/$phase/exit_code.txt"
+}
+
 if should_run_test "diag"; then
-    ./run_diag.sh
+    run_phase "diag" "run_diag.sh"
 fi
 
 if should_run_test "p2p"; then
-    ./run_p2p.sh
+    run_phase "p2p" "run_p2p.sh"
 fi
 
 if should_run_test "stress"; then
-    ./run_stress.sh
+    run_phase "stress" "run_stress.sh"
 fi
+
+python3 "$VALIDATOR_DIR/scripts/tools/generate_index.py" --run-dir "$RUN_DIR"
 
 echo "=============================================="
 echo " All selected tests completed"
+echo " Run report: $RUN_DIR/index.html"
 echo "=============================================="
