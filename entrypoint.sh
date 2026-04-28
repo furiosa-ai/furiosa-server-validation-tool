@@ -11,9 +11,9 @@ if [ -z "$HF_TOKEN" ]; then
     exit 1
 fi
 export HF_TOKEN=$HF_TOKEN
-export VALIDATION_DIR=${VALIDATION_DIR:-$HOME/furiosa-server-validation-tool}
-export OUTPUT_DIR=${OUTPUT_DIR:-$HOME/outputs}
-export LOG_DIR=${LOG_DIR:-$HOME/logs}
+export VALIDATION_DIR=${VALIDATION_DIR:-$HOME/furiosa-rngd-validator}
+export OUTPUT_DIR=${OUTPUT_DIR:-$VALIDATION_DIR/outputs}
+export LOG_DIR=${LOG_DIR:-$VALIDATION_DIR/logs}
 export TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 cd "$VALIDATION_DIR/scripts"

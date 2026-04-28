@@ -5,27 +5,14 @@ ENV FURIOSA_SKIP_PERT_DEPLOY=1
 ENV RUN_TESTS=diag,p2p,stress
 
 ENV HOME=/root
-ENV VALIDATION_DIR=$HOME/furiosa-server-validation-tool
+ENV VALIDATION_DIR=$HOME/furiosa-rngd-validator
 WORKDIR $VALIDATION_DIR
 
 ENV OUTPUT_DIR=$HOME/outputs
 ENV LOG_DIR=$HOME/logs
 RUN mkdir -p "${OUTPUT_DIR}" "${LOG_DIR}"
 
-RUN apt-get update && apt-get install -y \
-    sudo \
-    bash \
-    pciutils \
-    python3 \
-    python3-pip \
-    ca-certificates \
-    jq \
-    curl \
-    gnupg \
-    wget \
-    vim \
-    git \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y sudo bash pciutils python3 python3-pip ca-certificates jq curl gnupg wget vim git && rm -rf /var/lib/apt/lists/*
 
 # Add FuriosaAI repository and install furiosa-toolkit-rngd
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/trusted.gpg.d/cloud.google.gpg && \
@@ -36,9 +23,10 @@ RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -
 
 # Install furiosa-llm
 ENV PIP_EXTRA_INDEX_URL=https://asia-northeast3-python.pkg.dev/furiosa-ai/pypi/simple
-RUN pip install furiosa-llm==2026.1.0 pillow "urllib3<2" "more-itertools<11.0" --break-system-packages && pip uninstall torchvision -y --break-system-packages
+RUN pip install furiosa-llm==2026.1.0 pillow "more-itertools<11.0" --break-system-packages
+RUN pip uninstall torchvision -y --break-system-packages
 
 COPY entrypoint.sh $VALIDATION_DIR/entrypoint.sh
 COPY scripts   $VALIDATION_DIR/scripts/
 
-ENTRYPOINT ["/root/furiosa-server-validation-tool/entrypoint.sh"]
+ENTRYPOINT ["/root/furiosa-rngd-validator/entrypoint.sh"]
