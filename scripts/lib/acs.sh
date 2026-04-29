@@ -77,7 +77,7 @@ apply_acs_value() {
   cur="$(setpci -s "${bdf#0000:}" ECAP_ACS+0x6.W 2>/dev/null || true)"
   [[ -n "$cur" ]] || return 0
   echo "  Apply ACSCtl: ${bdf#0000:}  (0x$cur -> 0x$ACS_VALUE)"
-  setpci -s "${bdf#0000:}" ECAP_ACS+0x6.W=0x$ACS_VALUE
+  setpci -s "${bdf#0000:}" "ECAP_ACS+0x6.W=0x$ACS_VALUE"
 }
 
 mapfile -t ep_bdfs < <(lspci -D | awk '/Furi/{print $1}' | sort -u)
