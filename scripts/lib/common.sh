@@ -21,5 +21,5 @@ detect_npu_count() {
 capture_dmesg() {
   local out_dir="$1"
   local ts="${2:-${TIMESTAMP:-$(date +%Y%m%d_%H%M%S)}}"
-  sudo dmesg >"${out_dir}/dmesg_${ts}.log"
+  dmesg >"${out_dir}/dmesg_${ts}.log"
 }
