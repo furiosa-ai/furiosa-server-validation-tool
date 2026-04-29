@@ -11,25 +11,37 @@ BOLD  = "\033[1m"
 
 
 def strip_ansi(text: str) -> str:
+    """Remove ANSI color escape sequences from `text`."""
     return text.replace(GREEN, "").replace(RED, "").replace(RESET, "").replace(BOLD, "")
 
 
 class Logger:
     """Tees stdout to a file, stripping ANSI codes from the file copy."""
+
     def __init__(self, filename: str) -> None:
+        """Open `filename` (UTF-8) as the file copy target.
+
+        Args:
+            filename: Path to the file that receives ANSI-stripped output.
+        """
         self.terminal: IO[str] = sys.stdout
-        self.log: IO[str] = open(filename, "w", encoding="utf-8")
+        # SIM115 (use a context manager) -- the file is held open for the lifetime
+        # of this Logger instance, so a `with` block isn't applicable.
+        self.log: IO[str] = open(filename, "w", encoding="utf-8")  # noqa: SIM115
 
     def write(self, message: str) -> None:
+        """Write `message` to stdout and the file copy (ANSI-stripped)."""
         self.terminal.write(message)
         self.log.write(strip_ansi(message))
 
     def flush(self) -> None:
+        """Flush both stdout and the file copy."""
         self.terminal.flush()
         self.log.flush()
 
 
 def generate_html_report(all_results: list[tuple[str, str, str]], filename: str) -> None:
+    """Render the per-NPU PASS/FAIL HTML report to `filename`."""
     npu_groups: dict[str, list[tuple[str, str]]] = collections.defaultdict(list)
     for npu_id, item, res_text in all_results:
         npu_groups[npu_id].append((item, res_text))
