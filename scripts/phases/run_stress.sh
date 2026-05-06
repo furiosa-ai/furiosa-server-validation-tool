@@ -156,6 +156,9 @@ MONITOR_PID=""
 declare -a serve_pids=()
 declare -a serve_ports=()
 
+# SC2329 (function never invoked) -- cleanup runs via `trap` below; shellcheck
+# cannot follow indirect trap invocations.
+# shellcheck disable=SC2329
 cleanup() {
   trap - EXIT INT TERM
   if [[ ${#serve_pids[@]} -gt 0 ]]; then
@@ -198,8 +201,8 @@ for model_entry in "${MODELS[@]}"; do
       --served-model-name "$served_model_name" \
       >"$LOG_STRESS/${model}/npu${npu}/serve.log" 2>&1 &
 
-    serve_pids+=($!)
-    serve_ports+=($port)
+    serve_pids+=("$!")
+    serve_ports+=("$port")
   done
 
   sleep 5
@@ -223,7 +226,7 @@ for model_entry in "${MODELS[@]}"; do
 
   declare -a fixed_results=()
   for idx in "${!fixed_pids[@]}"; do
-    wait "${fixed_pids[$idx]}" && fixed_results[$idx]=0 || fixed_results[$idx]=1
+    wait "${fixed_pids[idx]}" && fixed_results[idx]=0 || fixed_results[idx]=1
   done
 
   declare -a sharegpt_pids=()
@@ -308,4 +311,4 @@ html_close "$HTML_REPORT"
 
 echo -e "HTML report saved to: ${YELLOW}$HTML_REPORT${NC}"
 
-[[ $FAILED -eq 1 ]] && exit 1 || true
+exit "$FAILED"
