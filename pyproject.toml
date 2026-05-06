@@ -1,3 +1,27 @@
+[tool.ruff]
+# 99: PEP 8's sanctioned alternative line length, overriding Google's 80.
+line-length = 99
+
+[tool.ruff.lint]
+# Rule families:
+#   B    flake8-bugbear (likely-bug patterns)
+#   C4   flake8-comprehensions (idiomatic comprehensions)
+#   COM  flake8-commas (trailing commas)
+#   D    pydocstyle (docstring presence and Google-style format)
+#   E    pycodestyle errors
+#   F    Pyflakes (undefined names, unused imports, ...)
+#   G    flake8-logging-format (no f-strings in logger calls)
+#   I    isort (import ordering)
+#   N    pep8-naming
+#   RUF  ruff-specific best practices
+#   SIM  flake8-simplify (default iterators, implicit falsiness)
+#   UP   pyupgrade (modern Python syntax, e.g. `X | None`)
+#   W    pycodestyle warnings
+select = ["B", "C4", "COM", "D", "E", "F", "G", "I", "N", "RUF", "SIM", "UP", "W"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
 # Requires `types-PyYAML` (`pip install types-PyYAML`) for yaml stubs.
 [tool.mypy]
 python_version = "3.10"

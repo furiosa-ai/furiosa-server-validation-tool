@@ -1,3 +1,5 @@
+"""Pytest configuration: extend sys.path so tests can import scripts/tools/."""
+
 import pathlib
 import sys
 

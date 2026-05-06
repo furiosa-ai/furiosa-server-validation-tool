@@ -1,0 +1,27 @@
+furiosa-rngd-validator
+Copyright 2026 FuriosaAI, Inc.
+
+==============================================================================
+Third-party components
+==============================================================================
+
+The components below are developed by third parties. Users of this
+validator are responsible for complying with each component's
+license terms.
+
+* vllm
+    https://github.com/vllm-project/vllm
+    License: Apache License 2.0
+
+* ShareGPT_V3_unfiltered_cleaned_split.json
+    https://huggingface.co/datasets/anon8231489123/ShareGPT_Vicuna_unfiltered
+    License: see upstream dataset card
+
+* meta-llama/Llama-3.1-8B-Instruct
+    https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct
+    License: Llama 3.1 Community License
+    https://www.llama.com/llama3_1/license/
+
+* Qwen/Qwen2.5-0.5B-Instruct
+    https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct
+    License: see upstream model card
