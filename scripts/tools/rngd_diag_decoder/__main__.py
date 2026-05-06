@@ -1,3 +1,9 @@
+"""Decode rngd-diag YAML output into a hardware-health PASS/FAIL report.
+
+Reads the YAML produced by `rngd-diag -o`, applies the thresholds from
+thresholds.py, and writes PF_result.log and PF_result.html via render.py.
+"""
+
 import argparse
 import os
 import sys
@@ -14,6 +20,18 @@ def check_npu_status(
     bench_data: dict[str, Any],
     stress_data: dict[str, Any],
 ) -> dict[str, str]:
+    """Compute the PASS/FAIL row for a single NPU.
+
+    Args:
+        npu_id: The NPU identifier (e.g., "npu0").
+        diag_data: The rngd-diag section for this NPU.
+        bench_data: The furiosa-hal-bench section for this NPU.
+        stress_data: The furiosa-stress-test section for this NPU.
+
+    Returns:
+        A dict mapping each diagnostic item (SENSORS, PWR_SENSE, PCIE,
+        hal-bench READ/WRITE, STRESS_TEST) to its colored PASS/FAIL string.
+    """
     results = {}
 
     sensors = diag_data.get('sensor', {}).get('details', {})
@@ -76,6 +94,7 @@ def check_npu_status(
 
 
 def main() -> None:
+    """Parse the YAML pointed to by --yaml-file and write PF_result.{log,html}."""
     parser = argparse.ArgumentParser(
         description="Decode rngd-diag YAML output into a hardware health report.",
     )
@@ -93,7 +112,7 @@ def main() -> None:
     sys.stdout = render.Logger(log_filename)
 
     try:
-        with open(args.yaml_file, 'r') as f:
+        with open(args.yaml_file) as f:
             raw = yaml.safe_load(f)
     except Exception as e:
         print(f"Error opening/reading YAML: {e}")

@@ -1,4 +1,11 @@
 #!/bin/bash
+# P2P bandwidth benchmark phase.
+# Runs `furiosa-hal-bench p2p` between every NPU pair twice -- once with
+# ACS disabled on the upstream Broadcom switches, once with ACS
+# re-enabled -- so the two sets of numbers can be compared. The
+# EXIT/INT/TERM trap always restores ACS, so an aborted run never leaves
+# the host with ACS disabled.
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

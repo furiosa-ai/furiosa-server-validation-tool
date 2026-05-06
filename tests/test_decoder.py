@@ -1,3 +1,5 @@
+"""Unit tests for the rngd_diag_decoder package."""
+
 import pytest
 from rngd_diag_decoder import __main__ as decoder_cli
 from rngd_diag_decoder import render, thresholds
@@ -10,6 +12,7 @@ def make_diag(
     width=thresholds.PCIE_EXPECTED_WIDTH,
     aer=0,
 ):
+    """Build a minimal rngd-diag input for check_npu_status in tests."""
     return {
         "sensor": {"details": sensors or {}},
         "power_sense": {"value": power},
@@ -17,8 +20,6 @@ def make_diag(
     }
 
 
-# SENSORS row should PASS when all readings sit inside SENSOR_LIMITS bounds
-# and FAIL when any reading falls outside its (lo, hi) interval.
 @pytest.mark.parametrize(
     "sensors, expected",
     [
@@ -27,23 +28,27 @@ def make_diag(
     ],
 )
 def test_sensors(sensors, expected):
+    """SENSORS row should PASS when all readings sit inside SENSOR_LIMITS bounds.
+
+    Any reading outside its (lo, hi) interval should flip the row to FAIL.
+    """
     result = decoder_cli.check_npu_status("npu0", make_diag(sensors=sensors), {}, {})
     assert expected in render.strip_ansi(result["SENSORS"])
 
 
-# PWR_SENSE row should PASS only for power_sense.value in
-# POWER_SENSE_VALID_VALUES; everything else (including missing data) should FAIL.
 @pytest.mark.parametrize(
     "power, expected",
     [(2.0, "PASS"), (3.0, "PASS"), (1.0, "FAIL"), (None, "FAIL")],
 )
 def test_pwr_sense(power, expected):
+    """PWR_SENSE row should PASS only for power_sense.value in POWER_SENSE_VALID_VALUES.
+
+    Everything else (including missing data) should FAIL.
+    """
     result = decoder_cli.check_npu_status("npu0", make_diag(power=power), {}, {})
     assert expected in render.strip_ansi(result["PWR_SENSE"])
 
 
-# PCIE row should PASS only when link speed and width match expected values
-# and total_err_fatal is zero; any AER fatal count should flip it to FAIL.
 @pytest.mark.parametrize(
     "speed, width, aer, expected",
     [
@@ -52,16 +57,22 @@ def test_pwr_sense(power, expected):
     ],
 )
 def test_pcie(speed, width, aer, expected):
+    """PCIE row should PASS only when link speed and width match expected values.
+
+    Any AER fatal count should flip it to FAIL.
+    """
     result = decoder_cli.check_npu_status(
-        "npu0", make_diag(speed=speed, width=width, aer=aer), {}, {}
+        "npu0", make_diag(speed=speed, width=width, aer=aer), {}, {},
     )
     assert expected in render.strip_ansi(result["PCIE"])
 
 
-# generate_html_report should write a file containing the NPU id, derive the
-# per-row .pass / .fail CSS class from the result text, and strip raw ANSI
-# escape sequences before writing.
 def test_generate_html_report_smoke(tmp_path):
+    """generate_html_report should write a file containing the NPU id.
+
+    The per-row .pass / .fail CSS class should be derived from the result
+    text, and raw ANSI escape sequences should be stripped before writing.
+    """
     out = tmp_path / "report.html"
     render.generate_html_report(
         [
