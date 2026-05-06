@@ -11,6 +11,7 @@ PHASES = ["diag", "p2p", "stress"]
 
 
 def read_dmi(path):
+    """Read a one-line DMI string from sysfs, returning "Unknown" on failure."""
     try:
         return pathlib.Path(path).read_text().strip()
     except Exception:
@@ -18,6 +19,11 @@ def read_dmi(path):
 
 
 def read_exit_code(phase_dir):
+    """Read the integer exit code recorded in `<phase_dir>/exit_code.txt`.
+
+    Returns:
+        The integer exit code, or None if the file is missing or unreadable.
+    """
     f = phase_dir / "exit_code.txt"
     if not f.exists():
         return None
@@ -28,12 +34,19 @@ def read_exit_code(phase_dir):
 
 
 def status_label(exit_code):
+    """Map an exit code to its status label ("pass", "fail", or "unknown")."""
     if exit_code is None:
         return "unknown"
     return "pass" if exit_code == 0 else "fail"
 
 
 def discover_phases(run_dir):
+    """Scan `run_dir` for phase output directories and collect their metadata.
+
+    Returns:
+        A list of dicts with `phase`, `report` (relative path or None), and
+        `exit_code` keys, in PHASES order.
+    """
     found = []
     for phase in PHASES:
         phase_dir = run_dir / phase
@@ -50,6 +63,7 @@ def discover_phases(run_dir):
 
 
 def render_html(run_dir, phases, hostname, vendor, model, generated_at):
+    """Render the run-level index.html as a string."""
     lines = [
         "<!DOCTYPE html>",
         "<html>",
@@ -125,6 +139,7 @@ def render_html(run_dir, phases, hostname, vendor, model, generated_at):
 
 
 def main():
+    """Write index.html and summary.json under the directory given by --run-dir."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-dir", required=True, type=pathlib.Path)
     args = parser.parse_args()
